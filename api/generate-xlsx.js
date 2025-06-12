@@ -1,6 +1,7 @@
-import ExcelJS from "exceljs";
+// api/generate-xlsx.js
+const ExcelJS = require("exceljs");
 
-export default async function handler(req, res) {
+module.exports = async (req, res) => {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Método não permitido" });
   }
@@ -47,4 +48,4 @@ export default async function handler(req, res) {
 
   await workbook.xlsx.write(res);
   res.end();
-}
+};
