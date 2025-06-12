@@ -15,9 +15,8 @@ module.exports = async (req, res) => {
     const sheet = workbook.addWorksheet("Reservas");
 
     sheet.columns = [
-      { header: "ID Reserva", key: "uid" },
-      { header: "ID Usuário", key: "idUser" },
-      { header: "Sala", key: "idRoom" },
+      { header: "E-mail do usuário", key: "emailUsuario" },
+      { header: "Nome da sala", key: "nomeSala" },
       { header: "Data", key: "date" },
       { header: "Hora Início", key: "inicialHour" },
       { header: "Hora Fim", key: "finalHour" },
@@ -26,6 +25,7 @@ module.exports = async (req, res) => {
       { header: "Status", key: "status" },
       { header: "Descrição", key: "desc" },
     ];
+    
 
     // Ordenar reservas por: data, depois hora de início, depois hora de fim
     reservas.sort((a, b) => {
