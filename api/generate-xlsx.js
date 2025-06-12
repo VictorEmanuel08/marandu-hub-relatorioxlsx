@@ -1,11 +1,22 @@
-// api/generate-xlsx.js
-const ExcelJS = require("exceljs");
-
 module.exports = async (req, res) => {
+  // CORS headers
+  res.setHeader(
+    "Access-Control-Allow-Origin",
+    "https://marandu-hub.flutterflow.app"
+  );
+  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+
+  // Resposta para pré-flight (OPTIONS)
+  if (req.method === "OPTIONS") {
+    return res.status(200).end();
+  }
+
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Método não permitido" });
   }
 
+  const ExcelJS = require("exceljs");
   const reservas = req.body;
 
   const workbook = new ExcelJS.Workbook();
