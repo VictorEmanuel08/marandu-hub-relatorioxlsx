@@ -1,11 +1,8 @@
 module.exports = async (req, res) => {
-  // Configura os headers CORS sempre no topo
-  //   res.setHeader("Access-Control-Allow-Origin", "https://marandu-hub.flutterflow.app");
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
-  // Responde a requisições OPTIONS (pré-flight)
   if (req.method === "OPTIONS") {
     return res.status(200).end();
   }
@@ -30,23 +27,42 @@ module.exports = async (req, res) => {
       { header: "Descrição", key: "desc" },
     ];
 
+    // Ordenar reservas por: data, depois hora de início, depois hora de fim
+    reservas.sort((a, b) => {
+      const aDate = new Date(a.date._seconds * 1000);
+      const bDate = new Date(b.date._seconds * 1000);
+      const aStart = new Date(a.inicialHour._seconds * 1000);
+      const bStart = new Date(b.inicialHour._seconds * 1000);
+      const aEnd = new Date(a.finalHour._seconds * 1000);
+      const bEnd = new Date(b.finalHour._seconds * 1000);
+
+      return aDate - bDate || aStart - bStart || aEnd - bEnd;
+    });
+
     for (const r of reservas) {
+      const dateObj = new Date(r.date._seconds * 1000);
       const start = new Date(r.inicialHour._seconds * 1000);
       const end = new Date(r.finalHour._seconds * 1000);
       const duracao = ((end - start) / (1000 * 60 * 60)).toFixed(2);
+
+      const dateFormatada = `${String(dateObj.getDate()).padStart(
+        2,
+        "0"
+      )}/${String(dateObj.getMonth() + 1).padStart(
+        2,
+        "0"
+      )}/${dateObj.getFullYear()}`;
+
       sheet.addRow({
         ...r,
-        date: new Date(r.date._seconds * 1000).toISOString().slice(0, 10),
+        date: dateFormatada,
         inicialHour: start.toTimeString().slice(0, 5),
         finalHour: end.toTimeString().slice(0, 5),
         duracao,
       });
     }
 
-    // Gera o arquivo em memória
     const buffer = await workbook.xlsx.writeBuffer();
-
-    // Retorna como base64
     const base64 = Buffer.from(buffer).toString("base64");
 
     res.status(200).json({ fileBase64: base64 });
